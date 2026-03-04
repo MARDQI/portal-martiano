@@ -1,0 +1,54 @@
+# ══════════════════════════════════════════════════
+# Portal Martiano — .gitignore
+# ══════════════════════════════════════════════════
+
+# ─── Variables de entorno (contienen credenciales) ───
+.env
+
+# ─── Archivos subidos por usuarios ───
+wp-content/uploads/*
+!wp-content/uploads/.gitkeep
+
+# ─── Plugins (se instalan vía WP o WP-CLI, no se versionan) ───
+wp-content/plugins/*
+!wp-content/plugins/.gitkeep
+
+# ─── Otros temas (solo versionamos catedra-marti) ───
+wp-content/themes/*
+!wp-content/themes/catedra-marti/
+
+# ─── Volúmenes de Docker ───
+db_data/
+
+# ─── Archivos del sistema operativo ───
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ─── IDEs y editores ───
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# ─── Node.js (si se añade tooling frontend) ───
+node_modules/
+package-lock.json
+yarn.lock
+
+# ─── Logs ───
+*.log
+debug.log
+
+# ─── Archivos temporales ───
+*.tmp
+*.bak
+*.orig
+
+# ─── Respaldos (archivos pesados, distribuir por separado) ───
+respaldo/

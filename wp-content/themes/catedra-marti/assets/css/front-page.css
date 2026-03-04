@@ -1,0 +1,399 @@
+/* ══════════════════════════════════════════════════
+   Portal Martiano — Estilos de la Página de Inicio
+   ══════════════════════════════════════════════════ */
+
+/* ─── Hero Banner ─── */
+.cm-hero {
+    position: relative;
+    background: linear-gradient(135deg, var(--cm-primary) 0%, var(--cm-primary-light) 50%, var(--cm-accent-light) 100%);
+    color: var(--cm-text-on-dark);
+    padding: 4rem 0;
+    overflow: hidden;
+}
+
+.cm-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('') center/cover no-repeat;
+    opacity: 0.15;
+}
+
+.cm-hero__content {
+    position: relative;
+    z-index: 1;
+    max-width: var(--cm-max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.cm-hero__title {
+    font-size: var(--cm-font-size-4xl);
+    font-weight: 800;
+    color: var(--cm-text-on-dark);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.cm-hero__description {
+    font-size: var(--cm-font-size-lg);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+
+.cm-hero__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    background-color: var(--cm-bg-primary);
+    color: var(--cm-primary);
+    font-weight: 700;
+    border-radius: var(--cm-radius);
+    transition: all 0.2s ease;
+    border: none;
+    font-size: var(--cm-font-size-base);
+}
+
+.cm-hero__btn:hover {
+    background-color: var(--cm-bg-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--cm-shadow-md);
+    color: var(--cm-primary);
+}
+
+/* ─── Sección de Bienvenida ─── */
+.cm-welcome {
+    padding: 2.5rem 0;
+}
+
+.cm-welcome__title {
+    font-size: var(--cm-font-size-2xl);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.cm-welcome__message {
+    font-size: var(--cm-font-size-base);
+    color: var(--cm-text-secondary);
+    line-height: 1.7;
+}
+
+/* ─── Grid de 2 columnas ─── */
+.cm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ─── Card de Avisos ─── */
+.cm-avisos .cm-card__header {
+    background: linear-gradient(135deg, var(--cm-primary), var(--cm-accent));
+    border-radius: var(--cm-radius-lg) var(--cm-radius-lg) 0 0;
+}
+
+.cm-avisos .cm-list__bullet {
+    background-color: var(--cm-success);
+}
+
+/* ─── Card de Noticias Recientes ─── */
+.cm-noticias .cm-card__header {
+    background: var(--cm-bg-primary);
+    border-bottom: 2px solid var(--cm-border);
+}
+
+.cm-noticias .cm-card__header-title {
+    color: var(--cm-text-primary);
+}
+
+.cm-noticias .cm-card__header-icon {
+    color: var(--cm-primary);
+}
+
+/* ─── Mini Calendario de Actividades ─── */
+.cm-calendar-widget {
+    width: 100%;
+}
+
+.cm-calendar-widget .cm-card__header {
+    background: var(--cm-bg-primary);
+    border-bottom: 2px solid var(--cm-border);
+}
+
+.cm-calendar-widget .cm-card__header-title {
+    color: var(--cm-text-primary);
+}
+
+.cm-calendar__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.cm-calendar__nav-btn {
+    background: none;
+    border: 1px solid var(--cm-border);
+    border-radius: var(--cm-radius);
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    color: var(--cm-text-primary);
+    transition: all 0.2s ease;
+}
+
+.cm-calendar__nav-btn:hover {
+    background-color: var(--cm-primary);
+    color: var(--cm-text-on-dark);
+    border-color: var(--cm-primary);
+}
+
+.cm-calendar__month-label {
+    font-weight: 600;
+    font-size: var(--cm-font-size-sm);
+}
+
+.cm-calendar__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: var(--cm-font-size-sm);
+}
+
+.cm-calendar__table th {
+    padding: 0.5rem 0.25rem;
+    font-weight: 600;
+    font-size: var(--cm-font-size-xs);
+    color: var(--cm-text-light);
+    text-transform: uppercase;
+}
+
+.cm-calendar__table td {
+    padding: 0.375rem;
+}
+
+.cm-calendar__day {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: var(--cm-font-size-sm);
+    color: var(--cm-text-primary);
+    transition: all 0.2s ease;
+}
+
+.cm-calendar__day--today {
+    background-color: var(--cm-primary);
+    color: var(--cm-text-on-dark);
+    font-weight: 700;
+}
+
+.cm-calendar__day--has-activity {
+    background-color: var(--cm-accent-light);
+    color: var(--cm-text-on-dark);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cm-calendar__day--has-activity:hover {
+    background-color: var(--cm-primary);
+}
+
+.cm-calendar__day--other-month {
+    color: var(--cm-text-light);
+    opacity: 0.5;
+}
+
+/* ─── Card de Eventos ─── */
+.cm-eventos .cm-card__header {
+    background: var(--cm-bg-primary);
+    border-bottom: 2px solid var(--cm-border);
+}
+
+.cm-eventos .cm-card__header-title {
+    color: var(--cm-text-primary);
+}
+
+.cm-event-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--cm-border-light);
+}
+
+.cm-event-item:last-child {
+    border-bottom: none;
+}
+
+.cm-event-item__date {
+    flex-shrink: 0;
+    text-align: center;
+    min-width: 50px;
+}
+
+.cm-event-item__day {
+    display: block;
+    font-size: var(--cm-font-size-2xl);
+    font-weight: 800;
+    color: var(--cm-primary);
+    line-height: 1;
+}
+
+.cm-event-item__month {
+    display: block;
+    font-size: var(--cm-font-size-xs);
+    color: var(--cm-text-secondary);
+    text-transform: uppercase;
+}
+
+.cm-event-item__info {
+    flex: 1;
+}
+
+.cm-event-item__title {
+    font-size: var(--cm-font-size-sm);
+    font-weight: 500;
+    color: var(--cm-text-primary);
+}
+
+.cm-event-item__action {
+    flex-shrink: 0;
+}
+
+/* ─── Sección Galería ─── */
+.cm-gallery-section .cm-card__header {
+    background: var(--cm-bg-primary);
+    border-bottom: 2px solid var(--cm-border);
+}
+
+.cm-gallery-section .cm-card__header-title {
+    color: var(--cm-text-primary);
+}
+
+.cm-gallery__grid {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.cm-gallery__item {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    border-radius: var(--cm-radius);
+    overflow: hidden;
+}
+
+.cm-gallery__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cm-gallery__item:hover img {
+    transform: scale(1.05);
+}
+
+/* ─── Sección Video ─── */
+.cm-video-section .cm-card__header {
+    background: var(--cm-bg-primary);
+    border-bottom: 2px solid var(--cm-border);
+}
+
+.cm-video-section .cm-card__header-title {
+    color: var(--cm-text-primary);
+}
+
+.cm-video__wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    border-radius: var(--cm-radius);
+    overflow: hidden;
+    background-color: #000;
+}
+
+.cm-video__wrapper iframe,
+.cm-video__wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.cm-video__play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 2;
+}
+
+.cm-video__play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.cm-video__play-btn::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 12px 0 12px 20px;
+    border-color: transparent transparent transparent var(--cm-primary);
+    margin-left: 4px;
+}
+
+/* ─── Infinite Scroll Loading ─── */
+.cm-infinite-scroll-sentinel {
+    height: 1px;
+    visibility: hidden;
+}
+
+.cm-infinite-scroll-loading {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+/* ─── Responsive Front Page ─── */
+@media (max-width: 768px) {
+    .cm-hero {
+        padding: 2.5rem 0;
+    }
+
+    .cm-hero__title {
+        font-size: var(--cm-font-size-2xl);
+    }
+
+    .cm-hero__description {
+        font-size: var(--cm-font-size-base);
+    }
+
+    .cm-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cm-gallery__item {
+        width: 100px;
+        height: 70px;
+    }
+}
