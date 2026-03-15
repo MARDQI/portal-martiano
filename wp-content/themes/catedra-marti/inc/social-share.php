@@ -21,7 +21,12 @@ function cm_social_share_buttons($post_id = null) {
 
     $url     = urlencode(get_permalink($post_id));
     $title   = urlencode(get_the_title($post_id));
-    $excerpt = urlencode(wp_trim_words(get_the_excerpt($post_id), 20));
+    $raw_excerpt = get_post_field('post_excerpt', $post_id);
+    if (!$raw_excerpt) {
+        $raw_content = get_post_field('post_content', $post_id);
+        $raw_excerpt = wp_strip_all_tags(strip_shortcodes($raw_content));
+    }
+    $excerpt = urlencode(wp_trim_words($raw_excerpt, 20));
 
     $networks = [
         'facebook' => [
