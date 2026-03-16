@@ -60,16 +60,39 @@ add_action('wp_ajax_cm_load_more', 'cm_ajax_load_more');
 add_action('wp_ajax_nopriv_cm_load_more', 'cm_ajax_load_more');
 
 /**
- * AJAX: Obtener actividades para el calendario.
+ * Construir entrada normalizada para el calendario.
+ *
+ * @param int    $id   ID del post.
+ * @param string $type Tipo de contenido.
+ * @param array  $meta Metadatos normalizados.
+ * @return array
+ */
+function cm_build_calendar_entry($id, $type, $meta) {
+    return [
+        'id'           => $id,
+        'type'         => $type,
+        'title'        => get_the_title($id),
+        'url'          => get_permalink($id),
+        'fecha_inicio' => $meta['fecha_inicio'],
+        'fecha_fin'    => $meta['fecha_fin'],
+        'lugar'        => $meta['lugar'],
+        'hora'         => $meta['hora'],
+        'color'        => $meta['color'],
+    ];
+}
+
+/**
+ * AJAX: Obtener actividades y eventos para el calendario.
  */
 function cm_ajax_get_calendar_activities() {
     check_ajax_referer('cm_calendar_nonce', 'nonce');
 
     $month = isset($_POST['month']) ? absint($_POST['month']) : intval(date('m'));
     $year  = isset($_POST['year']) ? absint($_POST['year']) : intval(date('Y'));
+    $month_start = sprintf('%04d-%02d-01', $year, $month);
+    $month_end   = date('Y-m-t', strtotime($month_start));
 
-    // Buscar actividades que caigan en el mes solicitado
-    $args = [
+    $activity_args = [
         'post_type'      => 'actividad',
         'posts_per_page' => -1,
         'post_status'    => 'publish',
@@ -77,67 +100,92 @@ function cm_ajax_get_calendar_activities() {
             'relation' => 'AND',
             [
                 'key'     => '_cm_actividad_fecha_inicio',
-                'value'   => sprintf('%04d-%02d-01', $year, $month),
+                'value'   => $month_end,
                 'compare' => '<=',
                 'type'    => 'DATE',
             ],
             [
                 'key'     => '_cm_actividad_fecha_fin',
-                'value'   => sprintf('%04d-%02d-%02d', $year, $month, cal_days_in_month(CAL_GREGORIAN, $month, $year)),
+                'value'   => $month_start,
                 'compare' => '>=',
                 'type'    => 'DATE',
             ],
         ],
     ];
 
-    // También incluir actividades cuya fecha de inicio cae en el mes
-    $args2 = [
-        'post_type'      => 'actividad',
+    $event_args = [
+        'post_type'      => 'evento',
         'posts_per_page' => -1,
         'post_status'    => 'publish',
         'meta_query'     => [
             [
-                'key'     => '_cm_actividad_fecha_inicio',
-                'value'   => [
-                    sprintf('%04d-%02d-01', $year, $month),
-                    sprintf('%04d-%02d-%02d', $year, $month, cal_days_in_month(CAL_GREGORIAN, $month, $year)),
-                ],
+                'key'     => '_cm_evento_fecha',
+                'value'   => [$month_start, $month_end],
                 'compare' => 'BETWEEN',
                 'type'    => 'DATE',
             ],
         ],
     ];
 
-    $query1 = new WP_Query($args);
-    $query2 = new WP_Query($args2);
+    $activities_query = new WP_Query($activity_args);
+    $events_query     = new WP_Query($event_args);
 
-    $activities = [];
-    $seen_ids = [];
+    $entries = [];
 
-    foreach ([$query1, $query2] as $query) {
-        if ($query->have_posts()) {
-            while ($query->have_posts()) {
-                $query->the_post();
-                $id = get_the_ID();
-                if (in_array($id, $seen_ids)) continue;
-                $seen_ids[] = $id;
+    if ($activities_query->have_posts()) {
+        while ($activities_query->have_posts()) {
+            $activities_query->the_post();
+            $id = get_the_ID();
 
-                $activities[] = [
-                    'id'           => $id,
-                    'title'        => get_the_title(),
-                    'url'          => get_permalink(),
-                    'fecha_inicio' => get_post_meta($id, '_cm_actividad_fecha_inicio', true),
-                    'fecha_fin'    => get_post_meta($id, '_cm_actividad_fecha_fin', true),
-                    'lugar'        => get_post_meta($id, '_cm_actividad_lugar', true),
-                ];
+            $fecha_inicio = get_post_meta($id, '_cm_actividad_fecha_inicio', true);
+            $fecha_fin    = get_post_meta($id, '_cm_actividad_fecha_fin', true);
+            if (!$fecha_fin) {
+                $fecha_fin = $fecha_inicio;
             }
+
+            $entries[] = cm_build_calendar_entry($id, 'actividad', [
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin'    => $fecha_fin,
+                'lugar'        => get_post_meta($id, '_cm_actividad_lugar', true),
+                'hora'         => '',
+                'color'        => get_post_meta($id, '_cm_actividad_color', true) ?: '#2F6FED',
+            ]);
         }
     }
+
+    if ($events_query->have_posts()) {
+        while ($events_query->have_posts()) {
+            $events_query->the_post();
+            $id = get_the_ID();
+            $fecha = get_post_meta($id, '_cm_evento_fecha', true);
+
+            $entries[] = cm_build_calendar_entry($id, 'evento', [
+                'fecha_inicio' => $fecha,
+                'fecha_fin'    => $fecha,
+                'lugar'        => get_post_meta($id, '_cm_evento_lugar', true),
+                'hora'         => get_post_meta($id, '_cm_evento_hora', true),
+                'color'        => get_post_meta($id, '_cm_evento_color', true) ?: '#D97706',
+            ]);
+        }
+    }
+
+    usort($entries, function ($a, $b) {
+        $date_compare = strcmp($a['fecha_inicio'], $b['fecha_inicio']);
+        if ($date_compare !== 0) {
+            return $date_compare;
+        }
+
+        if ($a['type'] === $b['type']) {
+            return strcmp($a['title'], $b['title']);
+        }
+
+        return $a['type'] === 'actividad' ? -1 : 1;
+    });
 
     wp_reset_postdata();
 
     wp_send_json_success([
-        'activities' => $activities,
+        'activities' => $entries,
         'month'      => $month,
         'year'       => $year,
     ]);

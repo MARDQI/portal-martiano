@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Part: Card de Calendario de Actividades
+ * Template Part: Card de Calendario de Actividades y Eventos
  *
  * Mini-calendario interactivo renderizado por JS (calendar.js).
  *
@@ -20,7 +20,7 @@ $current_year  = intval(date('Y'));
 <div class="cm-card cm-calendar-widget" id="cm-calendar">
     <div class="cm-card__header">
         <span class="cm-card__header-icon">&#128197;</span>
-        <h3 class="cm-card__header-title"><?php esc_html_e('Calendario de Actividades', 'catedra-marti'); ?></h3>
+        <h3 class="cm-card__header-title"><?php esc_html_e('Calendario de Actividades y Eventos', 'catedra-marti'); ?></h3>
     </div>
 
     <div class="cm-card__body">

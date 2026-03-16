@@ -8,12 +8,10 @@
  * @since   1.0.0
  */
 
-$avisos = new WP_Query([
+$avisos_query = new WP_Query([
     'post_type'      => 'aviso',
-    'posts_per_page' => 3,
+    'posts_per_page' => -1,
     'post_status'    => 'publish',
-    'orderby'        => 'date',
-    'order'          => 'DESC',
     'meta_query'     => [
         'relation' => 'OR',
         [
@@ -28,6 +26,33 @@ $avisos = new WP_Query([
         ],
     ],
 ]);
+
+$avisos_posts = $avisos_query->posts;
+
+if (!empty($avisos_posts)) {
+    usort($avisos_posts, function ($a, $b) {
+        $mapa = [
+            'urgente' => 3,
+            'alta'    => 2,
+            'baja'    => 1,
+            'normal'  => 1,
+        ];
+
+        $prioridad_a = get_post_meta($a->ID, '_cm_aviso_prioridad', true);
+        $prioridad_b = get_post_meta($b->ID, '_cm_aviso_prioridad', true);
+
+        $orden_a = $mapa[$prioridad_a] ?? 1;
+        $orden_b = $mapa[$prioridad_b] ?? 1;
+
+        if ($orden_a !== $orden_b) {
+            return $orden_b <=> $orden_a;
+        }
+
+        return strtotime($b->post_date_gmt ?: $b->post_date) <=> strtotime($a->post_date_gmt ?: $a->post_date);
+    });
+
+    $avisos_posts = array_slice($avisos_posts, 0, 3);
+}
 ?>
 
 <div class="cm-card cm-avisos">
@@ -37,14 +62,14 @@ $avisos = new WP_Query([
     </div>
 
     <div class="cm-card__body">
-        <?php if ($avisos->have_posts()) : ?>
+        <?php if (!empty($avisos_posts)) : ?>
             <ul class="cm-list">
-                <?php while ($avisos->have_posts()) : $avisos->the_post(); ?>
+                <?php foreach ($avisos_posts as $post) : setup_postdata($post); ?>
                     <li class="cm-list__item">
                         <span class="cm-list__bullet"></span>
                         <span><?php the_title(); ?></span>
                     </li>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </ul>
         <?php else : ?>
             <p class="cm-card__empty"><?php esc_html_e('No hay avisos importantes en este momento.', 'catedra-marti'); ?></p>

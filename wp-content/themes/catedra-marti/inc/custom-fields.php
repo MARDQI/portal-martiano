@@ -9,6 +9,18 @@
 defined('ABSPATH') || exit;
 
 /**
+ * Sanitizar color hexadecimal para el calendario.
+ *
+ * @param string $color   Color recibido.
+ * @param string $default Color por defecto.
+ * @return string
+ */
+function cm_sanitize_calendar_color($color, $default) {
+    $sanitized = sanitize_hex_color($color);
+    return $sanitized ? $sanitized : $default;
+}
+
+/**
  * Registrar metaboxes para cada CPT.
  */
 function cm_register_metaboxes() {
@@ -74,6 +86,9 @@ add_action('add_meta_boxes', 'cm_register_metaboxes');
 function cm_aviso_metabox_callback($post) {
     wp_nonce_field('cm_aviso_nonce_action', 'cm_aviso_nonce');
     $prioridad = get_post_meta($post->ID, '_cm_aviso_prioridad', true);
+    if (!$prioridad || $prioridad === 'normal') {
+        $prioridad = 'baja';
+    }
     $vigencia  = get_post_meta($post->ID, '_cm_aviso_vigencia', true);
     ?>
     <table class="form-table">
@@ -81,7 +96,7 @@ function cm_aviso_metabox_callback($post) {
             <th><label for="cm_aviso_prioridad"><?php _e('Prioridad', 'catedra-marti'); ?></label></th>
             <td>
                 <select id="cm_aviso_prioridad" name="cm_aviso_prioridad">
-                    <option value="normal" <?php selected($prioridad, 'normal'); ?>><?php _e('Normal', 'catedra-marti'); ?></option>
+                    <option value="baja" <?php selected($prioridad, 'baja'); ?>><?php _e('Baja', 'catedra-marti'); ?></option>
                     <option value="alta" <?php selected($prioridad, 'alta'); ?>><?php _e('Alta', 'catedra-marti'); ?></option>
                     <option value="urgente" <?php selected($prioridad, 'urgente'); ?>><?php _e('Urgente', 'catedra-marti'); ?></option>
                 </select>
@@ -106,6 +121,10 @@ function cm_actividad_metabox_callback($post) {
     $fecha_inicio = get_post_meta($post->ID, '_cm_actividad_fecha_inicio', true);
     $fecha_fin    = get_post_meta($post->ID, '_cm_actividad_fecha_fin', true);
     $lugar        = get_post_meta($post->ID, '_cm_actividad_lugar', true);
+    $color        = get_post_meta($post->ID, '_cm_actividad_color', true);
+    if (!$color) {
+        $color = '#2F6FED';
+    }
     ?>
     <table class="form-table">
         <tr>
@@ -120,6 +139,13 @@ function cm_actividad_metabox_callback($post) {
             <th><label for="cm_actividad_lugar"><?php _e('Lugar', 'catedra-marti'); ?></label></th>
             <td><input type="text" id="cm_actividad_lugar" name="cm_actividad_lugar" value="<?php echo esc_attr($lugar); ?>" class="regular-text" /></td>
         </tr>
+        <tr>
+            <th><label for="cm_actividad_color"><?php _e('Color en calendario', 'catedra-marti'); ?></label></th>
+            <td>
+                <input type="color" id="cm_actividad_color" name="cm_actividad_color" value="<?php echo esc_attr($color); ?>" />
+                <p class="description"><?php _e('Color con el que se mostrará la actividad en el calendario.', 'catedra-marti'); ?></p>
+            </td>
+        </tr>
     </table>
     <?php
 }
@@ -133,6 +159,10 @@ function cm_evento_metabox_callback($post) {
     $hora        = get_post_meta($post->ID, '_cm_evento_hora', true);
     $lugar       = get_post_meta($post->ID, '_cm_evento_lugar', true);
     $inscripcion = get_post_meta($post->ID, '_cm_evento_inscripcion', true);
+    $color       = get_post_meta($post->ID, '_cm_evento_color', true);
+    if (!$color) {
+        $color = '#D97706';
+    }
     ?>
     <table class="form-table">
         <tr>
@@ -152,6 +182,13 @@ function cm_evento_metabox_callback($post) {
             <td>
                 <input type="url" id="cm_evento_inscripcion" name="cm_evento_inscripcion" value="<?php echo esc_attr($inscripcion); ?>" class="regular-text" />
                 <p class="description"><?php _e('URL del formulario de inscripción (opcional).', 'catedra-marti'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="cm_evento_color"><?php _e('Color en calendario', 'catedra-marti'); ?></label></th>
+            <td>
+                <input type="color" id="cm_evento_color" name="cm_evento_color" value="<?php echo esc_attr($color); ?>" />
+                <p class="description"><?php _e('Color con el que se mostrará el evento en el calendario.', 'catedra-marti'); ?></p>
             </td>
         </tr>
     </table>
@@ -249,9 +286,25 @@ function cm_save_metaboxes($post_id) {
 
     // ─── Aviso ───
     if (isset($_POST['cm_aviso_nonce']) && wp_verify_nonce($_POST['cm_aviso_nonce'], 'cm_aviso_nonce_action')) {
-        if (isset($_POST['cm_aviso_prioridad'])) {
-            update_post_meta($post_id, '_cm_aviso_prioridad', sanitize_text_field($_POST['cm_aviso_prioridad']));
+        $prioridad = isset($_POST['cm_aviso_prioridad']) ? sanitize_text_field($_POST['cm_aviso_prioridad']) : 'baja';
+        $prioridades_validas = ['urgente', 'alta', 'baja', 'normal'];
+        if (!in_array($prioridad, $prioridades_validas, true)) {
+            $prioridad = 'baja';
         }
+
+        if ($prioridad === 'normal') {
+            $prioridad = 'baja';
+        }
+
+        $mapa_orden = [
+            'urgente' => 3,
+            'alta'    => 2,
+            'baja'    => 1,
+        ];
+
+        update_post_meta($post_id, '_cm_aviso_prioridad', $prioridad);
+        update_post_meta($post_id, '_cm_aviso_prioridad_orden', $mapa_orden[$prioridad]);
+
         if (isset($_POST['cm_aviso_vigencia'])) {
             update_post_meta($post_id, '_cm_aviso_vigencia', sanitize_text_field($_POST['cm_aviso_vigencia']));
         }
@@ -265,6 +318,8 @@ function cm_save_metaboxes($post_id) {
                 update_post_meta($post_id, '_cm_actividad_' . $field, sanitize_text_field($_POST['cm_actividad_' . $field]));
             }
         }
+        $actividad_color = isset($_POST['cm_actividad_color']) ? $_POST['cm_actividad_color'] : '#2F6FED';
+        update_post_meta($post_id, '_cm_actividad_color', cm_sanitize_calendar_color($actividad_color, '#2F6FED'));
     }
 
     // ─── Evento ───
@@ -278,6 +333,8 @@ function cm_save_metaboxes($post_id) {
         if (isset($_POST['cm_evento_inscripcion'])) {
             update_post_meta($post_id, '_cm_evento_inscripcion', esc_url_raw($_POST['cm_evento_inscripcion']));
         }
+        $evento_color = isset($_POST['cm_evento_color']) ? $_POST['cm_evento_color'] : '#D97706';
+        update_post_meta($post_id, '_cm_evento_color', cm_sanitize_calendar_color($evento_color, '#D97706'));
     }
 
     // ─── Curiosidad ───
