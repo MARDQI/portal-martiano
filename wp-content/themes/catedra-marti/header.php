@@ -58,18 +58,6 @@ defined('ABSPATH') || exit;
             }
             ?>
 
-            <!-- Enlace Acceder / Mi Cuenta -->
-            <?php if (is_user_logged_in()) : ?>
-                <a href="<?php echo esc_url(admin_url()); ?>" class="cm-nav__login">
-                    <span class="dashicons dashicons-admin-users"></span>
-                    <?php echo esc_html(wp_get_current_user()->display_name); ?>
-                </a>
-            <?php else : ?>
-                <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="cm-nav__login">
-                    <?php esc_html_e('Acceder', 'catedra-marti'); ?>
-                </a>
-            <?php endif; ?>
-
             <!-- Barra de Búsqueda (RF44) -->
             <form class="cm-search-form" role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
                 <input

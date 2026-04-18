@@ -99,13 +99,13 @@ Se incluye WP-CLI como servicio Docker (perfil `tools`):
 
 ```bash
 # Ejecutar WP-CLI
-docker compose run --rm wpcli wp option get siteurl
+docker compose run --rm wpcli option get siteurl
 
 # Activar tema
-docker compose run --rm wpcli wp theme activate catedra-marti
+docker compose run --rm wpcli theme activate catedra-marti
 
 # Crear usuario admin (primera vez)
-docker compose run --rm wpcli wp core install \
+docker compose run --rm wpcli core install \
   --url="http://localhost:8080" \
   --title="Portal Martiano" \
   --admin_user=admin \
@@ -113,7 +113,7 @@ docker compose run --rm wpcli wp core install \
   --admin_email=admin@portal.local
 
 # Importar contenido de prueba
-docker compose run --rm wpcli wp plugin install wordpress-importer --activate
+docker compose run --rm wpcli plugin install wordpress-importer --activate
 ```
 
 ## Configuración inicial en WordPress
