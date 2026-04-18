@@ -103,3 +103,53 @@ function cm_widgets_init() {
     ]);
 }
 add_action('widgets_init', 'cm_widgets_init');
+
+/**
+ * Automatizar configuraciones base al activar el tema (Menú e Inicio rápido)
+ */
+function cm_auto_setup_on_activation() {
+    // 1. Configurar la estructura de enlaces permanentes (Permalinks)
+    update_option('permalink_structure', '/%postname%/');
+    flush_rewrite_rules();
+
+    // 2. Configurar la página de "Galería" por defecto para que funcione el visualizador
+    $galeria_title = 'Galería';
+    $galeria_exists = get_page_by_title($galeria_title);
+    if (!isset($galeria_exists->ID)) {
+        wp_insert_post([
+            'post_title'   => $galeria_title,
+            'post_name'    => 'galeria',
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+            'page_template'=> 'page-galeria.php'
+        ]);
+    }
+
+    // 3. Crear el Menú Principal con "Curiosidades" y "Documentos" si no existe
+    $menu_name = 'Menú Principal';
+    $menu_exists = wp_get_nav_menu_object($menu_name);
+
+    if (!$menu_exists) {
+        $menu_id = wp_create_nav_menu($menu_name);
+
+        wp_update_nav_menu_item($menu_id, 0, [
+            'menu-item-title'   => 'Curiosidades',
+            'menu-item-url'     => home_url('/curiosidades'),
+            'menu-item-status'  => 'publish',
+            'menu-item-type'    => 'custom',
+        ]);
+        
+        wp_update_nav_menu_item($menu_id, 0, [
+            'menu-item-title'   => 'Documentos',
+            'menu-item-url'     => home_url('/documentos'),
+            'menu-item-status'  => 'publish',
+            'menu-item-type'    => 'custom',
+        ]);
+
+        // Asignar el menú a la ubicación del header
+        $locations = get_theme_mod('nav_menu_locations');
+        $locations['primary'] = $menu_id;
+        set_theme_mod('nav_menu_locations', $locations);
+    }
+}
+add_action('after_switch_theme', 'cm_auto_setup_on_activation');
